@@ -551,7 +551,7 @@ if pregunta := st.chat_input("Escribe tu pregunta aquí..."):
 #       Ambos son MÉTODOS del mismo contrato Runnable: misma cadena, distinta
 #       forma de invocarla.
 #
-#   • prompt_templates_estudio.py:
+#   • 2.3_prompt_templates_estudio.py:
 #       Allí veíamos PromptTemplate vs ChatPromptTemplate en aislado.
 #       Aquí los vemos en una app REAL, con roles dinámicos y streaming.
 #
