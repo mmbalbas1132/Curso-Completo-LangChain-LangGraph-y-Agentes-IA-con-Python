@@ -6,3 +6,5 @@ __pycache__/
 .vscode/
 chroma_db/
 *.log
+# Prompts internos del curso
+PROMPT_*.md
