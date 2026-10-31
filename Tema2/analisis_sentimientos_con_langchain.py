@@ -2,7 +2,7 @@
 ================================================================================
 MINI-PROYECTO: ANÁLISIS DE SENTIMIENTOS CON LANGCHAIN (LCEL) — PARTE 2
 ================================================================================
-Material de estudio — 
+Material de estudio —
     • Encabezado conceptual ("¿por qué?").
     • Código comentado ("¿cómo?").
     • Notas "🔎 Para profundizar" con matices y errores comunes.
@@ -85,6 +85,12 @@ from langchain_openai import ChatOpenAI
 #   • `python-dotenv` NO es de LangChain; es el estándar de facto en Python
 #     para gestionar secretos en desarrollo.
 
+# ➕ Añadido: fíjate en que `Runnable` (la clase base) no se importa
+# explícitamente porque lo que usamos son sus dos implementaciones
+# concretas: `RunnableLambda` (envolver funciones) y `RunnableParallel`
+# (ejecutar ramas en paralelo). El pipe `|` que verás más abajo devuelve
+# un `RunnableSequence`, que también es un `Runnable`.
+
 
 # ==============================================================================
 # 2. 🆕 CARGA DE VARIABLES DE ENTORNO
@@ -124,6 +130,10 @@ if not os.getenv("OPENAI_API_KEY"):
 #     persistir en sistemas externos (CloudWatch, Datadog…).
 #   • Añade `.env` a `.gitignore` ANTES del primer commit. Si ya lo subiste,
 #     rota la clave: el historial de Git conserva lo borrado.
+
+# ➕ Añadido: `load_dotenv()` es idempotente. Puedes llamarla N veces sin
+# efectos colaterales; Streamlit y Jupyter lo agradecen porque re-ejecutan
+# celdas/scripts completos en cada interacción.
 
 
 # ==============================================================================
@@ -166,6 +176,10 @@ def preprocess_text(text):
 
 preprocessor = RunnableLambda(preprocess_text)
 
+# ➕ Añadido: `preprocessor` es un Runnable, no una función. A partir de
+# aquí solo se puede usar con `.invoke()`, `.batch()`, `.stream()` o
+# combinarlo con `|`. No puedes llamarlo como `preprocessor(texto)`.
+
 
 # ==============================================================================
 # 5. GENERACIÓN DE RESUMEN
@@ -194,6 +208,10 @@ summary_branch = RunnableLambda(generate_summary)
 #     `summary_brach` (typo). Lo he corregido aquí; si quieres mantener el
 #     nombre original por coherencia, renómbralo en las dos ocurrencias
 #     (definición y uso dentro de RunnableParallel).
+
+# ➕ Añadido: fíjate en que `generate_summary` devuelve `response.content`
+# (un `str`). En batch, ese `str` se convierte en el valor de la clave
+# `"resumen"` del `RunnableParallel` para cada item del lote.
 
 
 # ==============================================================================
@@ -235,6 +253,10 @@ sentiment_branch = RunnableLambda(analyze_sentiment)
 #       la excepción EN LUGAR del resultado para los items que fallen.
 #       Así puedes inspeccionar qué falló sin perder el resto.
 
+# ➕ Añadido: las dobles llaves `{{` y `}}` en el f-string se escapan
+# para producir `{` y `}` literales. Sin ese escape, Python intentaría
+# evaluar `"sentimiento"` como variable y lanzaría KeyError.
+
 
 # ==============================================================================
 # 7. COMBINACIÓN DE RESULTADOS
@@ -258,6 +280,11 @@ merger = RunnableLambda(merge_results)
 #   • Si quisieras añadir un campo común a TODO el lote (p. ej. "job_id"
 #     o "timestamp" compartido), NO lo hagas aquí (se recalcularía por
 #     item). Hazlo DESPUÉS del batch: `[{**r, "job_id": jid} for r in res]`.
+
+# ➕ Añadido: `data` es el dict que produce `parallel_analysis`, con la
+# forma {"resumen": str, "sentimiento_data": {"sentimiento": ..., "razon": ...}}.
+# El merge solo aplana ese anidamiento. Si renombras las claves en el
+# `RunnableParallel` (sección 8), tienes que actualizar también aquí.
 
 
 # ==============================================================================
@@ -287,6 +314,12 @@ chain = preprocessor | parallel_analysis | merger
 #     heredan el mismo contrato de métodos.
 #   • Puedes pasar la MISMA cadena a `.invoke`, `.batch` o `.stream` según
 #     el caso de uso. No hay versiones distintas.
+
+# ➕ Añadido: el pipe `|` construye un `RunnableSequence`, que es a su vez
+# un Runnable. Por eso `chain` expone `.invoke`, `.batch`, `.stream`, etc.
+# La concurrencia de `chain.batch(...)` viene de que, al estar compuesta
+# por Runnables, cada item del lote puede recorrer la tubería completa en
+# su propio thread (o tarea async).
 
 
 # ==============================================================================

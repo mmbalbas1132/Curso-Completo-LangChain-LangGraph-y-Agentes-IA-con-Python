@@ -85,6 +85,10 @@ from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 #     en su flujo principal. Aparecerá solo en la sección 5 (opcional).
 #     Mantener los imports "honestos" (solo lo que se usa) es buena práctica.
 
+# ➕ Añadido: tanto `PromptTemplate` como `ChatPromptTemplate` heredan de
+# `BasePromptTemplate`, que a su vez es un `Runnable`. Eso es lo que te
+# permite enchufarlos con `|` a un modelo sin conversiones intermedias.
+
 
 # ==============================================================================
 # 2. 🆕 CARGA DE VARIABLES DE ENTORNO (patrón estándar del proyecto)
@@ -193,6 +197,12 @@ print(f"[DEBUG] Variables esperadas: {prompt.input_variables}")
 #     que es un objeto (no un str) útil para ciertas cadenas. Para el 99%
 #     de los casos, `.format()` es lo que quieres.
 
+# ➕ Añadido: `prompt` (el objeto `PromptTemplate`) se puede usar de dos
+# formas: (1) llamando a `.format(...)` a mano para obtener el string, o
+# (2) encadenándolo con `|` a un LLM, que internamente llamará a
+# `.format_prompt()` y obtendrá el `StringPromptValue`. La forma (2) es
+# la que usa LCEL de forma natural.
+
 
 # ==============================================================================
 # 4. CHATPROMPTTEMPLATE — la familia "moderna" (mensajes con rol)
@@ -274,6 +284,13 @@ print(f"[DEBUG] Variables esperadas: {chat_prompt.input_variables}")
 #   • Puedes añadir un turno de "ai" para hacer few-shot:
 #       ("human", "Hola"), ("ai", "Hello"), ("human", "{texto}")
 #     Esto le muestra al modelo un ejemplo de cómo responder.
+
+# ➕ Añadido: fíjate en el contraste de TIPOS con la sección 3:
+#   · `.format()`           → devuelve `str`
+#   · `.format_messages()`  → devuelve `list[BaseMessage]`
+# Ambos son "lo que el LLM espera" según sea completion o chat. En LCEL,
+# el pipe `|` se encarga de la conversión interna: `prompt | llm` funciona
+# con cualquiera de los dos porque cada uno sabe qué producir.
 
 
 # ==============================================================================
@@ -370,6 +387,11 @@ if False:  # Cambia a True para probar (necesita .env con OPENAI_API_KEY)
 #   • 🆕 Aquí se ve POR QUÉ cargamos .env en la sección 2 aunque el flujo
 #     principal no lo necesite: en el momento en que activas este bloque,
 #     la clave ya está disponible sin tocar nada más.
+
+# ➕ Añadido: `chain` y `cadena_simple` son `RunnableSequence`. Una vez
+# construidas, expones el contrato Runnable completo: `.invoke()`,
+# `.batch()`, `.stream()`, `.ainvoke()`... Todo lo que aprendiste de
+# RunnableLambda en la lección de LCEL aplica aquí sin cambios.
 
 
 # ==============================================================================

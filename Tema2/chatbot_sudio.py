@@ -74,6 +74,10 @@ from langchain_core.messages import (
 #     `ChatXxx` con la misma interfaz (`invoke`, `stream`, etc.). Eso es
 #     lo que hace LCEL agnóstico al proveedor.
 
+# ➕ Añadido: fíjate en que `ChatDeepSeek` y `ChatPromptTemplate` comparten
+# un contrato común: ambos son Runnables. Por eso se pueden unir con `|`
+# en la sección 5.6 sin adaptadores intermedios.
+
 
 # ==============================================================================
 # 2. CARGA DE VARIABLES DE ENTORNO
@@ -89,6 +93,10 @@ from langchain_core.messages import (
 #   después. Si lo pusieras al revés, Streamlit lanzaría un error.
 # ------------------------------------------------------------------------------
 load_dotenv()
+
+# ➕ Añadido: "idempotente" significa que llamarla N veces produce el mismo
+# efecto que llamarla una vez. Los reruns de Streamlit la invocan en cada
+# ciclo, pero las variables ya cargadas en `os.environ` no se pisan.
 
 
 # ==============================================================================
@@ -127,6 +135,10 @@ if not os.getenv("DEEPSEEK_API_KEY"):
         "o expórtala en el entorno antes de arrancar Streamlit."
     )
     st.stop()  # Detiene el script aquí (no lanza excepción).
+
+# ➕ Añadido: `st.stop()` corta el rerun actual sin traceback, dejando la UI
+# en el estado ya dibujado. Un `raise` sí generaría traceback en la consola
+# del servidor; en una app de usuario eso es ruido innecesario.
 
 
 # ==============================================================================
@@ -260,6 +272,11 @@ with st.sidebar:
 #   • `MessagesPlaceholder(variable_name="historial")` define un hueco
 #     que se rellena en `.invoke({"historial": [...], ...})` o
 #     `.stream({"historial": [...], ...})`.
+
+# ➕ Añadido: `from_messages([...])` acepta dos tipos de "mensaje":
+#   • Tuplas (rol, template): texto fijo o con variables `{...}`.
+#   • Objetos `MessagesPlaceholder`: huecos para listas de mensajes.
+# Mezclar ambos es lo normal en un chatbot conversacional.
 
 
 # ==============================================================================
@@ -433,6 +450,12 @@ if pregunta := st.chat_input("Escribe tu pregunta aquí..."):
 #     `append` al bloque `finally`.
 #   • El streaming de DeepSeek devuelve chunks por tokens o sub-palabras.
 #     Streamlit los renderiza tal cual, con `▌` como indicador visual.
+
+# ➕ Añadido: las CLAVES del dict que pasas a `cadena.stream(...)` deben
+# coincidir EXACTAMENTE con los nombres que espera el `ChatPromptTemplate`:
+#   "historial" → nombre del `MessagesPlaceholder`
+#   "mensaje"   → variable del template ("human", "{mensaje}")
+# Un error tipográfico aquí lanzaría `KeyError` antes de llegar a la API.
 
 
 # ==============================================================================

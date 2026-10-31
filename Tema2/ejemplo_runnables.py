@@ -25,6 +25,11 @@ load_dotenv()
 # Python (o función lambda) en un Runnable, permitiéndonos usarla dentro de LCEL.
 from langchain_core.runnables import RunnableLambda
 
+# ➕ Añadido: fíjate en que RunnableLambda no "ejecuta" tu función al crearse.
+# Solo la ENVUELVE. La función se ejecuta cuando llamas a .invoke() (o .batch()
+# o .stream()) sobre la cadena. Es una diferencia clave con llamar a la función
+# directamente: aquí estamos construyendo una "receta", no cocinando todavía.
+
 
 # ───────────────────────────────────────────────────────────────────────────
 # 2. DEFINICIÓN DE LOS PASOS (PASO 1 Y PASO 2)
@@ -37,6 +42,11 @@ from langchain_core.runnables import RunnableLambda
 #   para nuestra cadena LCEL.
 paso1 = RunnableLambda(lambda x: f"Numero {x}")
 
+# ➕ Añadido: el tipo que recibe `x` es `int` (43) y el tipo que devuelve es
+# `str` ("Numero 43"). Este cambio de tipo es exactamente lo que define
+# el "contrato" del paso1: cualquier cosa que le pases será formateada con
+# f-string. Si en lugar de 43 le pasaras "hola", devolvería "Numero hola".
+
 
 # PASO 2: Usando una función clásica de Python (def)
 # - Recibe un texto (que será el output del paso1).
@@ -47,6 +57,11 @@ def duplicar_texto(texto):
 
 # Envolvemos la función 'duplicar_texto' en un RunnableLambda.
 paso2 = RunnableLambda(duplicar_texto)
+
+# ➕ Añadido: `duplicar_texto` recibe un `str` y devuelve una `list[str]`.
+# Podrías haber escrito `paso2 = RunnableLambda(lambda t: [t] * 2)`, pero usar
+# `def` deja mejor documentada la intención y permite reutilizar la función
+# fuera de la cadena si algún día lo necesitas.
 
 
 # ───────────────────────────────────────────────────────────────────────────
@@ -59,6 +74,11 @@ paso2 = RunnableLambda(duplicar_texto)
 # al siguiente componente.
 # El flujo de datos es estrictamente de izquierda a derecha.
 cadena = paso1 | paso2
+
+# ➕ Añadido: internamente, `paso1 | paso2` devuelve un `RunnableSequence`.
+# Como `RunnableSequence` ES también un Runnable, puedes seguir encadenando:
+# `paso1 | paso2 | paso3 | ...`. El resultado `cadena` expone `.invoke()`,
+# `.batch()`, `.stream()`, etc., exactamente igual que `paso1` o `paso2`.
 
 
 # ───────────────────────────────────────────────────────────────────────────
