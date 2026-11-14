@@ -329,7 +329,8 @@ if False:  # Cambia a True para probar
 
     # --- OPCIÓN C: .batch con límite de concurrencia ---
     t0 = time.perf_counter()
-    resultados_batch_5 = chain.batch(reviews_batch, max_concurrency=5)
+    # resultados_batch_5 = chain.batch(reviews_batch, max_concurrency=5)
+    resultados_batch_5 = chain.batch(reviews_batch, config={"max_concurrency": 5})
     t_batch_5 = time.perf_counter() - t0
 
     # --- OPCIÓN D: .batch con errores encapsulados ---
