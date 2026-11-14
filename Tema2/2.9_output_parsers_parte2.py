@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 # ➕ Añadido: `Field` nos permite añadir descripciones y reglas a cada campo,
 # lo cual es VITAL para que el LLM entienda qué queremos extraer.
 #
-# 🧠 `BaseModel` es la clase base de Pydantic. Todo esquema que quieras usar
+# 🧠 `BaseModel` es la clase base de Pydantic.Todo esquema que quieras usar
 #    como "contrato" de salida debe heredar de ella.
 # 🧠 `Field(...)` es un helper que envuelve la definición de un atributo para
 #    añadir metadatos: descripción, valor por defecto, validaciones, etc.

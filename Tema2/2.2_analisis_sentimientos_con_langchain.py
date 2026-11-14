@@ -204,10 +204,6 @@ summary_branch = RunnableLambda(generate_summary)
 #       loop principal, pero cada llamada SÍ bloquea SU hilo.
 #     → Si quieres máxima eficiencia, usa `async def` + `await llm.ainvoke()`
 #       y llama a `chain.abatch(...)`. Evitas el overhead de threads.
-#   • En tu archivo original, `summary_branch` estaba escrito como
-#     `summary_brach` (typo). Lo he corregido aquí; si quieres mantener el
-#     nombre original por coherencia, renómbralo en las dos ocurrencias
-#     (definición y uso dentro de RunnableParallel).
 
 # ➕ Añadido: fíjate en que `generate_summary` devuelve `response.content`
 # (un `str`). En batch, ese `str` se convierte en el valor de la clave

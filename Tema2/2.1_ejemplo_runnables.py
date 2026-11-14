@@ -22,7 +22,7 @@ load_dotenv()
 # LangChain necesita que todos los componentes de una cadena (prompts, modelos,
 # parsers) sean de un tipo llamado "Runnable".
 # RunnableLambda es un "adaptador" que convierte cualquier función normal de
-# Python (o función lambda) en un Runnable, permitiéndonos usarla dentro de LCEL.
+# Python (o función lambda) en un Runnable, permitiéndonos usarla dentro de LCEL (LangChain Expression Language).
 from langchain_core.runnables import RunnableLambda
 
 # ➕ Añadido: fíjate en que RunnableLambda no "ejecuta" tu función al crearse.
