@@ -1,10 +1,42 @@
-.env
+# Entornos y caché Python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Empaquetado
+build/
+dist/
+*.egg-info/
+
+# IDEs y sistema
 .idea/
 .vscode/
+.DS_Store
+Thumbs.db
+
+# Secretos y credenciales (Google)
+credentials.json
+*credentials*.json
+token.json
+token*.json
+client_secret*.json
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Bases vectoriales y logs
 chroma_db/
+**/chroma_db/
 *.log
-# Prompts internos del curso
-PROMPT_*.md
+
+# Datos personales en Tema3
+/Tema3/*.pdf
+
+# Prompts internos
+PROMPT_*.mdscratch/
