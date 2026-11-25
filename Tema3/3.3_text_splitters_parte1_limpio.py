@@ -7,7 +7,7 @@ load_dotenv()
 
 # 1. Cargar el documento PDF
 # PyPDFLoader devuelve un Document por página (el PDF tiene 471 páginas).
-loader = PyPDFLoader("C:\\Users\\santiago\\curso_langchain\\Tema 3\\quijote.pdf")
+loader = PyPDFLoader("/home/mmbal/proyectos/curso-langchain/Tema3/quijote.pdf")
 pages = loader.load()
 
 # 2. Combinar todas las páginas en un texto único

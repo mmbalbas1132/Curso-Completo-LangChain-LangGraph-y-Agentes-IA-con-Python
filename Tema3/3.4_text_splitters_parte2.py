@@ -45,7 +45,7 @@ load_dotenv()
 # (ver la sugerencia 1).
 # ==============================================================================
 # 1. Cargar el documento PDF
-loader = PyPDFLoader("C:\\Users\\santiago\\curso_langchain\\Tema 3\\quijote.pdf")
+loader = PyPDFLoader("/home/mmbal/proyectos/curso-langchain/Tema3/quijote.pdf")
 pages = loader.load()
 
 # ==============================================================================
