@@ -2,7 +2,7 @@
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `3.2_google_drive_loader_limpio.py` y de la documentación oficial de LangChain. Marcas: 📘 *(material del curso)* = procede solo del archivo; ⚠️ *(no contrastado)* = no se pudo confirmar en las páginas oficiales consultadas; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)* = observado al ejecutar código o al leer el código fuente instalado de `langchain-google-community` 5.1.1 (con `langchain-core` 1.7.7 y `pypdf` 7.1.0). **El script completo no se ejecutó**: necesita el flujo OAuth de Google en un navegador y acceso a tu Drive. Tampoco se abrieron `credentials.json` ni `token.json` (son credenciales privadas). Sí se comprobó, sin credenciales, la clase `DrivePyPDFLoader` sobre el PDF del tema (solo número de páginas y metadatos) y los valores por defecto de `GoogleDriveLoader`.
+> **Procedencia.** Documento elaborado a partir de `3.2_google_drive_loader.py` (versión con comentarios didácticos; su código es idéntico al de `3.2_google_drive_loader_limpio.py`, ✅ comprobado) y de la documentación oficial de LangChain. Marcas: 📘 *(material del curso)* = procede solo del archivo; ⚠️ *(no contrastado)* = no se pudo confirmar en las páginas oficiales consultadas; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)* = observado al ejecutar código o al leer el código fuente instalado de `langchain-google-community` 5.1.1 (con `langchain-core` 1.7.7 y `pypdf` 7.1.0). **El script completo no se ejecutó**: necesita el flujo OAuth de Google en un navegador y acceso a tu Drive. Tampoco se abrieron `credentials.json` ni `token.json` (son credenciales privadas). Sí se comprobó, sin credenciales, la clase `DrivePyPDFLoader` sobre el PDF del tema (solo número de páginas y metadatos) y los valores por defecto de `GoogleDriveLoader`.
 
 ---
 
@@ -101,6 +101,18 @@ class DrivePyPDFLoader:
 
 **¿Por qué existe esta clase?** `GoogleDriveLoader` descarga cada archivo a memoria y se lo pasa a la clase indicada en `file_loader_cls`. ✅ En el código fuente instalado, la llamada es literalmente `self.file_loader_cls(file=fh, **self.file_loader_kwargs)`, donde `fh` es el archivo descargado en memoria (`BytesIO`). Por eso `DrivePyPDFLoader` recibe un argumento llamado `file`.
 
+El archivo añade tres matices (📘):
+
+- La clase va **antes** de usarla porque Python necesita que el nombre exista cuando se escribe `file_loader_cls=DrivePyPDFLoader`.
+- `or ""` evita `None` cuando una página no tiene capa de texto (por ejemplo, un escaneo), para que `page_content` sea siempre `str`.
+- Devolver `[]` si no hay archivo permite que un loader "no encuentre nada" sin romper el programa.
+
+Y contiene tres afirmaciones que se contrastaron con el código instalado de `langchain-google-community` 5.1.1:
+
+- 🔀 Dice que `file` "puede ser una ruta local (tras descargarlo a un tmp) o un objeto `BytesIO`". ✅ En la versión probada siempre recibe un `BytesIO` en memoria; no hay archivo temporal.
+- 🔀 Dice que `**kwargs` recibe argumentos como `file_path` o `metadata`. ✅ En el código instalado solo recibe lo que se pase en `file_loader_kwargs` (por defecto, nada). Aceptar `**kwargs` sigue siendo inofensivo.
+- ⚠️ Dice que, por defecto, `GoogleDriveLoader` usa un loader interno basado en `unstructured`. No se encontró ninguna referencia a `unstructured` en el código instalado; la página oficial solo cita `UnstructuredFileIOLoader` como ejemplo de clase para `file_loader_cls`.
+
 **Comprobado** ✅: `DrivePyPDFLoader` leyendo en memoria (como hace Drive) el PDF del tema devolvió 2 `Document` con metadatos `{'page': 1}` y texto de tipo `str`.
 
 🔀 *(diferencia con 3.1)* Aquí `page` cuenta desde 1; `PyPDFLoader` (3.1) lo cuenta desde 0 y añade más metadatos.
@@ -131,6 +143,15 @@ TOKEN_PATH = current_dir / "token.json"
 | `CREDENTIALS_PATH` / `TOKEN_PATH` | `credentials.json` y `token.json` junto al script. |
 
 La documentación oficial indica que por defecto el loader busca estos archivos en `~/.credentials/`; aquí se sobrescriben con `credentials_path` y `token_path`. ✅ (valores por defecto observados: `~/.credentials/credentials.json` y `~/.credentials/token.json`).
+
+**Cómo decide el loader qué credenciales usar** ✅ *(leído en el código instalado, no ejecutado contra Drive)*, en este orden:
+
+1. Si existe `~/.credentials/keys.json` (clave de cuenta de servicio), la usa.
+2. Si existe `token.json` y es válido, lo reutiliza; si ha caducado y tiene *refresh token*, lo renueva.
+3. Si no hay credenciales válidas y la variable `GOOGLE_APPLICATION_CREDENTIALS` **no existe** en el entorno, usa las credenciales por defecto de Google Cloud.
+4. Si la variable **existe** (aunque esté vacía), lanza el flujo OAuth con `credentials.json` y guarda `token.json`.
+
+Por eso funciona `= ""`: lo que cuenta es que la variable *exista*, y así se evita el paso 3. El efecto que describe el comentario del archivo (forzar OAuth) coincide ✅; su explicación de que, con una ruta válida, Google "se salta" el flujo OAuth no se contrastó. ⚠️
 
 ---
 
@@ -175,6 +196,7 @@ Comprobaciones:
 - ✅ Valor por defecto de `scopes` en la versión probada: `['https://www.googleapis.com/auth/drive.file']`. El script lo cambia a `drive.readonly`. La página oficial consultada **no documenta** el argumento `scopes` ni sus valores por defecto. ⚠️
 - ✅ En el código fuente, `file_types` solo se acepta si se indica `folder_id`, y los nombres cortos como `"pdf"` se convierten al tipo MIME completo.
 - La documentación oficial confirma `folder_id`, `credentials_path`, `token_path`, `recursive`, `file_types` y `file_loader_cls`.
+- El archivo dice que `drive.readonly` es el privilegio mínimo para leer y que para escribir habría que añadir otros (`drive.file`, `drive`). 📘
 
 🔀 *(inconsistencia de la propia documentación oficial)* La página dice primero que "solo se admiten Google Docs" y más abajo que por defecto se cargan documentos, hojas de cálculo y PDFs de una carpeta. El script depende de poder cargar PDFs mediante `file_loader_cls`; en el código fuente instalado hay una rama específica para `application/pdf` y para cuando `file_loader_cls` está definido ✅.
 
@@ -208,6 +230,8 @@ except Exception as e:
 | `if documents:` | Solo muestra datos si la lista no está vacía. |
 | `documents[0].metadata` | Metadatos de la primera página. |
 | `page_content[:200]` | Primeros 200 caracteres. |
+
+El archivo describe `loader.load()` como el momento en que ocurre todo: (1) OAuth, (2) listado recursivo de la carpeta, (3) "descarga temporal" de cada PDF, (4) lectura con `DrivePyPDFLoader`, (5) aplanado en una sola lista. Añade que el resultado es una lista de `Document` igual que en 3.1: cambia la fuente, no el tipo. 📘 Matiz 🔀: la descarga es en memoria, no temporal ✅. También anuncia que `documents[0].metadata` mostrará `page` en base 1; ✅ según el código, además tendrá `source` y `title`.
 
 **Metadatos esperados** ✅ *(deducido del código fuente instalado, no ejecutado contra Drive)*: tras cargar con `file_loader_cls`, `GoogleDriveLoader` añade a cada `Document`:
 
@@ -319,7 +343,9 @@ Para que LangChain use el flujo OAuth del usuario y no unas credenciales de nube
 - El script usa un ID de carpeta real como valor por defecto.
 - `load_dotenv` busca el `.env` en la carpeta **superior** al script, pero `credentials.json` y `token.json` se buscan en la carpeta del script.
 - `DrivePyPDFLoader.__init__` ignora `**kwargs`; sirve para que el loader no falle si Drive le pasa argumentos extra (`file_loader_kwargs`).
-- Los `Document` de este loader cuentan páginas desde 1, a diferencia de `PyPDFLoader` (desde 0).
+- Los `Document` de este loader cuentan páginas desde 1, a diferencia de `PyPDFLoader` (desde 0). El archivo lo presenta como decisión de diseño, no como error. 📘
+- El archivo termina con sugerencias **no aplicadas** (📘): documentar la convención de `page`, afinar el `except Exception`, usar `os.environ.pop(...)` en lugar de `= ""` (cambiaría la semántica: según el código instalado, que la variable no exista activaría el paso 3 de arriba), exigir el ID de carpeta desde `.env` y añadir `if __name__ == "__main__":`. El código no cambia.
+- El comentario del ID por defecto recomienda guardarlo solo en `.env`, igual que la advertencia de seguridad de este documento.
 
 ---
 
@@ -338,7 +364,7 @@ Para que LangChain use el flujo OAuth del usuario y no unas credenciales de nube
 ### Respuestas
 
 1. El primero identifica la aplicación ante Google; el segundo guarda la autorización concedida.
-2. Fuerza el uso de OAuth ignorando credenciales de nube por defecto.
+2. Fuerza el uso de OAuth: al existir la variable (aunque vacía), el loader no recurre a las credenciales por defecto de Google Cloud ✅.
 3. La clase que convierte el archivo descargado en `Document`; recibe `file=` con el archivo en memoria.
 4. `drive.readonly`: solo lectura.
 5. Incluye las subcarpetas.
@@ -366,6 +392,6 @@ Para que LangChain use el flujo OAuth del usuario y no unas credenciales de nube
 
 - `GoogleDriveLoader`: <https://docs.langchain.com/oss/python/integrations/document_loaders/google_drive>
 - Código fuente instalado de `langchain-google-community` 5.1.1 (valores por defecto y comportamiento de `file_loader_cls`).
-- Material del tema: `3.2_google_drive_loader_limpio.py`.
+- Material del tema: `3.2_google_drive_loader.py` (con comentarios) y `3.2_google_drive_loader_limpio.py` (mismo código, sin comentarios).
 
 *Documento generado a partir de los materiales del tema y la documentación oficial de LangChain.*
