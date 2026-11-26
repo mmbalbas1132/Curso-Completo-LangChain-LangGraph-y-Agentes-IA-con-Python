@@ -75,7 +75,7 @@ load_dotenv()
 ```
 
 - `import os` **no se usa** en el script (✅ no aparece en otra línea).
-- 🔀 **`Chroma` ahora viene de `langchain_chroma`.** El original la importaba de `langchain_community`, donde ✅ la clase está obsoleta (al activar todos los avisos de Python aparece `LangChainDeprecationWarning: The class Chroma was deprecated in LangChain 0.2.9 …`; con la configuración por defecto no se muestra). La página oficial de Chroma usa `from langchain_chroma import Chroma`. ✅ Con embeddings simulados, la nueva clase se comporta igual (`from_documents`, `similarity_search`, colección `langchain`) y **abre bases creadas con la clase antigua**. ⚠️ El script completo con `langchain_chroma` no se ha ejecutado con la API real (la salida real del alumno, lección 6, se obtuvo con la clase antigua). El aviso de retirada de `langchain-community` seguirá saliendo, porque `PyPDFDirectoryLoader` se importa de ese paquete.
+- 🔀 **`Chroma` ahora viene de `langchain_chroma`.** El original la importaba de `langchain_community`, donde ✅ la clase está obsoleta (al activar todos los avisos de Python aparece `LangChainDeprecationWarning: The class Chroma was deprecated in LangChain 0.2.9 …`; con la configuración por defecto no se muestra). La página oficial de Chroma usa `from langchain_chroma import Chroma`. ✅ Con embeddings simulados, la nueva clase se comporta igual (`from_documents`, `similarity_search`, colección `langchain`) y **abre bases creadas con la clase antigua**. ✅ El alumno ejecutó el script completo con `langchain_chroma` y la API real (código de salida 0) y obtuvo los mismos 3 resultados que con la clase antigua (lección 6). El aviso de retirada de `langchain-community` seguirá saliendo, porque `PyPDFDirectoryLoader` se importa de ese paquete.
 
 ### Lección 2: cargar los PDF de una carpeta
 
@@ -123,7 +123,7 @@ vectorstore = Chroma.from_documents(
 
 ✅ Con embeddings simulados la colección se llama `langchain` y contiene **39 vectores**.
 
-🔀 **Duplicados.** ✅ Si ejecutas el script **otra vez** con la misma carpeta, los 39 chunks se añaden de nuevo: **39 → 78 vectores**, porque no se pasan ids ni se borra la colección. Con duplicados, una búsqueda puede devolver el mismo texto repetido.
+🔀 **Duplicados.** ✅ Si ejecutas el script **otra vez** con la misma carpeta, los 39 chunks se añaden de nuevo: **39 → 78 vectores**, porque no se pasan ids ni se borra la colección. ✅ **Caso real:** tras varias ejecuciones sin borrar la carpeta, los 3 resultados de `similarity_search(k=3)` eran **el mismo chunk repetido** (3 copias). Al borrar la carpeta de la base (`persist_directory`) y ejecutar una sola vez, volvieron a salir 3 chunks distintos. ✅ Reproducido también con embeddings simulados: con ids estables (parámetro `ids` de `from_documents`) la base no crece al re-ejecutar (10 vectores tras 3 ejecuciones en la prueba, en vez de 30).
 
 ⚠️ Con una clave no válida ✅ la API responde `401 AuthenticationError` en esta llamada; los dos `print` anteriores ya se habrán mostrado.
 
@@ -162,7 +162,7 @@ for i, doc in enumerate(resultados, start=1):
 | 2 | Tercera página del mismo PDF | Cierre con firmas y anexos; aparece el nombre de la persona, no la ubicación del local | Solo indirectamente |
 | 3 | Primera página de `CONTRATO DE ARRENDAMIENTO DE LOCAL DE NEGOCIO.pdf` | Otro contrato de local de negocio, de otras partes y otra ciudad | **No** |
 
-Lecciones: (a) `similarity_search` devuelve siempre los `k` más parecidos, sean o no relevantes; (b) se parece por significado general (contrato de local de negocio), no filtra por la persona; (c) un chunk puede cortarse a mitad de una frase (el 1.º termina en mitad de un punto del contrato), efecto del `chunk_size=1000`; (d) el orden de las claves de `metadata` varía de un resultado a otro (es un diccionario, no importa).
+Lecciones: (a) `similarity_search` devuelve siempre los `k` más parecidos, sean o no relevantes; (b) se parece por significado general (contrato de local de negocio), no filtra por la persona; (c) un chunk puede cortarse a mitad de una frase (el 1.º termina en mitad de un punto del contrato), efecto del `chunk_size=1000`; (d) el orden de las claves de `metadata` varía de un resultado a otro (es un diccionario, no importa); (e) ✅ con `langchain_chroma` y la base recreada, la salida volvió a ser la misma que con la clase antigua.
 
 ---
 
@@ -178,7 +178,7 @@ Lecciones: (a) `similarity_search` devuelve siempre los `k` más parecidos, sean
 
 Opciones (⚠️ no ejecutadas con la API real):
 
-- Borrar la carpeta de la base antes de ejecutar.
+- Borrar la carpeta de la base antes de ejecutar (✅ es lo que resolvió el caso real).
 - Pasar ids estables a `from_documents` (✅ la firma admite `ids`).
 - Abrir la base existente en lugar de recrearla.
 

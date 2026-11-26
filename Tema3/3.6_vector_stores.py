@@ -86,6 +86,10 @@ print(f"Se crearon {len(docs_split)} chunks de texto.")
 # Sin persist_directory la base sería solo en memoria (así lo indica la página oficial de Chroma).
 # Ojo — duplicados (✅): si ejecutas el script otra vez con la misma carpeta, los 39 chunks se
 # añaden de nuevo (39 → 78 vectores), porque no se indican ids ni se borra la colección.
+# Caso real (✅ salida del alumno con la API): tras varias ejecuciones sin borrar la carpeta, los
+# 3 resultados de la búsqueda eran el MISMO chunk repetido (3 copias). Al borrar la carpeta de
+# la base y volver a ejecutar, volvieron a salir 3 chunks distintos. Para recuperarte de esto:
+# borra la carpeta de persist_directory y ejecuta una sola vez.
 # Ojo — errores: con una clave no válida la API responde 401 (AuthenticationError) en esta
 # llamada (✅ observado con una clave falsa); los dos print anteriores ya se habrán mostrado.
 # El nombre del modelo de embeddings debe ser el mismo al crear la base y al consultarla; si no,
@@ -120,7 +124,8 @@ consulta = "¿Dónde se encuentra el local del contrato en el que participa Mar�
 # pero no la ubicación del local; el 3.º es la primera página de OTRO contrato de local de
 # negocio, sin relación con la persona de la consulta. Conclusión: la búsqueda por similitud
 # devuelve lo más parecido, no solo lo relevante; con k=3 pueden colarse resultados flojos.
-# (Con embeddings simulados el orden no tiene ningún significado.)
+# (Con embeddings simulados el orden no tiene ningún significado.) Con langchain_chroma y la API
+# real (✅ ejecución del alumno) salieron los mismos 3 resultados que con la clase antigua.
 # ==============================================================================
 resultados = vectorstore.similarity_search(consulta, k=3)
 
