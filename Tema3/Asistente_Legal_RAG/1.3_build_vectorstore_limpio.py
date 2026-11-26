@@ -8,6 +8,8 @@ from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+# Registra config -> 1.1_config_limpio.py, prompts -> 1.2_..., rag_system -> 1.4_... (ver modulos_limpios.py).
+import modulos_limpios
 from config import EMBEDDING_MODEL, CHROMA_DB_PATH
 
 # Carga OPENAI_API_KEY desde el archivo .env.

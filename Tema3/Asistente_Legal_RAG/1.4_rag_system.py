@@ -22,11 +22,22 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 from langchain_classic.retrievers import EnsembleRetriever
 import streamlit as st
+from dotenv import load_dotenv
 
 # `from config import *` y `from prompts import *` traen TODAS las constantes de esos
 # archivos (ver 1.1 y 1.2).
+# Importante: los archivos numerados se importan entre sí desde las versiones _limpio.
+# modulos_limpios.py hace que "config", "prompts" y "rag_system" se carguen desde
+# 1.1_config_limpio.py, 1.2_prompts_limpio.py y 1.4_rag_system_limpio.py (un módulo cuyo nombre
+# empieza por un número no se puede importar con "import" normal). Debe ir ANTES.
+import modulos_limpios
 from config import *
 from prompts import *
+
+# load_dotenv (añadido): lee el .env para que OpenAIEmbeddings y ChatOpenAI encuentren
+# OPENAI_API_KEY (ver 3.3). Carga OPENAI_API_KEY desde el archivo .env (no sobrescribe variables ya definidas en el entorno).
+load_dotenv()
+
 
 # ============================================================
 # BLOQUE 1 — INICIALIZACIÓN DEL SISTEMA (se ejecuta una vez)
@@ -37,13 +48,12 @@ from prompts import *
 # ============================================================
 @st.cache_resource
 def initialize_rag_system():
-
     # Vector Store
     # Chroma(embedding_function=..., persist_directory=...) abre la base guardada en disco.
     # El `\` al final de la línea de `embedding_function` es innecesario (dentro de paréntesis); compila igual ✅.
     # La variable se llama `vectorestore` (falta una r): solo es un nombre.
     vectorestore = Chroma(
-        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL),\
+        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL), \
         persist_directory=CHROMA_DB_PATH
     )
 
@@ -91,7 +101,7 @@ def initialize_rag_system():
     if ENABLE_HYBRID_SEARCH:
         ensemble_retriever = EnsembleRetriever(
             retrievers=[mmr_multi_retriever, similarity_retriever],
-            weights=[0.7, 0.3], # mayor peso a MMR
+            weights=[0.7, 0.3],  # mayor peso a MMR
             similarity_threshold=SIMILARITY_THRESHOLD
         )
         # 🔀 `similarity_threshold` (arriba) NO existe en EnsembleRetriever: la clase lo
@@ -113,30 +123,31 @@ def initialize_rag_system():
 
         for i, doc in enumerate(docs, 1):
             header = f"[Fragmento {i}]"
-            
+
             if doc.metadata:
                 if 'source' in doc.metadata:
-                    source = doc.metadata['source'].split("\\")[-1] if '\\' in doc.metadata['source'] else doc.metadata['source']
+                    source = doc.metadata['source'].split("\\")[-1] if '\\' in doc.metadata['source'] else doc.metadata[
+                        'source']
                     header += f" - Fuente: {source}"
                 if 'page' in doc.metadata:
                     header += f" - Pagina: {doc.metadata['page']}"
-        
+
             content = doc.page_content.strip()
             formatted.append(f"{header}\n{content}")
-        
+
         return "\n\n".join(formatted)
 
     # Cadena LCEL. El diccionario crea dos ramas en paralelo: "context" (pregunta ->
     # retriever -> format_docs) y "question" (RunnablePassthrough: la pregunta sin cambios).
     # Después: prompt -> gpt-4o -> StrOutputParser (devuelve str ✅).
     rag_chain = (
-        {
-            "context": final_retriever | format_docs,
-            "question": RunnablePassthrough()
-        }
-        | prompt
-        | llm_generation
-        | StrOutputParser()
+            {
+                "context": final_retriever | format_docs,
+                "question": RunnablePassthrough()
+            }
+            | prompt
+            | llm_generation
+            | StrOutputParser()
     )
 
     # ⚠️ Devuelve mmr_multi_retriever, no final_retriever: con búsqueda híbrida la respuesta
@@ -181,16 +192,17 @@ def query_rag(question):
                 "pagina": doc.metadata.get('page', 'No especificada')
             }
             docs_info.append(doc_info)
-        
+
         return response, docs_info
-    
+
     # Se captura CUALQUIER excepción y se devuelve como texto de respuesta con fragmentos
     # vacíos: app.py nunca recibe una excepción (el error aparece como respuesta del asistente).
     except Exception as e:
         # (Errata "cosulta" en el mensaje original.)
         error_msg = f"Error al procesar la cosulta: {str(e)}"
         return error_msg, []
-    
+
+
 # ============================================================
 # BLOQUE 3 — INFORMACIÓN DEL RETRIEVER
 # ------------------------------------------------------------
@@ -208,7 +220,6 @@ def get_retriever_info():
         "candidatos": MMR_FETCH_K,
         "umbral": SIMILARITY_THRESHOLD if ENABLE_HYBRID_SEARCH else "N/A"
     }
-
 
 # ============================================================
 # 💡 SUGERENCIAS (no aplicadas — el código original se respeta)

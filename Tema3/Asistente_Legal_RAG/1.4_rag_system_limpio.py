@@ -8,18 +8,24 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 from langchain_classic.retrievers import EnsembleRetriever
 import streamlit as st
+from dotenv import load_dotenv
 
 # Constantes (config.py) y plantillas (prompts.py), importadas con `*`.
+# Registra config -> 1.1_config_limpio.py, prompts -> 1.2_..., rag_system -> 1.4_... (ver modulos_limpios.py).
+import modulos_limpios
 from config import *
 from prompts import *
+
+# Carga OPENAI_API_KEY desde el archivo .env (no sobrescribe variables ya definidas en el entorno).
+load_dotenv()
+
 
 # cache_resource: la función se ejecuta una vez y se reutiliza entre reejecuciones de Streamlit.
 @st.cache_resource
 def initialize_rag_system():
-
     # Vector Store
     vectorestore = Chroma(
-        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL),\
+        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL), \
         persist_directory=CHROMA_DB_PATH
     )
 
@@ -59,7 +65,7 @@ def initialize_rag_system():
     if ENABLE_HYBRID_SEARCH:
         ensemble_retriever = EnsembleRetriever(
             retrievers=[mmr_multi_retriever, similarity_retriever],
-            weights=[0.7, 0.3], # mayor peso a MMR
+            weights=[0.7, 0.3],  # mayor peso a MMR
             similarity_threshold=SIMILARITY_THRESHOLD
         )
         final_retriever = ensemble_retriever
@@ -74,28 +80,29 @@ def initialize_rag_system():
 
         for i, doc in enumerate(docs, 1):
             header = f"[Fragmento {i}]"
-            
+
             if doc.metadata:
                 if 'source' in doc.metadata:
-                    source = doc.metadata['source'].split("\\")[-1] if '\\' in doc.metadata['source'] else doc.metadata['source']
+                    source = doc.metadata['source'].split("\\")[-1] if '\\' in doc.metadata['source'] else doc.metadata[
+                        'source']
                     header += f" - Fuente: {source}"
                 if 'page' in doc.metadata:
                     header += f" - Pagina: {doc.metadata['page']}"
-        
+
             content = doc.page_content.strip()
             formatted.append(f"{header}\n{content}")
-        
+
         return "\n\n".join(formatted)
 
     # Cadena RAG: {context: retriever -> format_docs, question: pregunta} -> prompt -> modelo -> texto.
     rag_chain = (
-        {
-            "context": final_retriever | format_docs,
-            "question": RunnablePassthrough()
-        }
-        | prompt
-        | llm_generation
-        | StrOutputParser()
+            {
+                "context": final_retriever | format_docs,
+                "question": RunnablePassthrough()
+            }
+            | prompt
+            | llm_generation
+            | StrOutputParser()
     )
 
     # Devuelve la cadena y el retriever MMR+MultiQuery (NO el ensemble).
@@ -123,14 +130,15 @@ def query_rag(question):
                 "pagina": doc.metadata.get('page', 'No especificada')
             }
             docs_info.append(doc_info)
-        
+
         return response, docs_info
-    
+
     # Cualquier error se devuelve como texto de respuesta con lista de fragmentos vacía.
     except Exception as e:
         error_msg = f"Error al procesar la cosulta: {str(e)}"
         return error_msg, []
-    
+
+
 # Datos de configuración del retriever para la barra lateral (app.py solo usa 'tipo').
 def get_retriever_info():
     """Obtiene información sobre la configuración del retriever"""

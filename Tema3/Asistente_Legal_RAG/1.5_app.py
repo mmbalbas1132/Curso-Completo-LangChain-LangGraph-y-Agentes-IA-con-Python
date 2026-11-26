@@ -16,6 +16,11 @@
 # ============================================================
 
 import streamlit as st
+# Importante: los archivos numerados se importan entre sí desde las versiones _limpio.
+# modulos_limpios.py hace que "config", "prompts" y "rag_system" se carguen desde
+# 1.1_config_limpio.py, 1.2_prompts_limpio.py y 1.4_rag_system_limpio.py (un módulo cuyo nombre
+# empieza por un número no se puede importar con "import" normal). Debe ir ANTES.
+import modulos_limpios
 from rag_system import query_rag, get_retriever_info
 
 # ============================================================
@@ -73,23 +78,23 @@ if "messages" not in st.session_state:
 # Sidebar simplificado
 with st.sidebar:
     st.header("📋 Información del Sistema")
-    
+
     # Información del retriever
     # Se llama en cada reejecución. Más abajo solo se muestra la clave
     # 'tipo' del diccionario (✅ con la config actual: "MMR + MultiQuery + Hybrid").
     retriever_info = get_retriever_info()
-    
+
     st.markdown("**🔍 Retriever:**")
     st.info(f"Tipo: {retriever_info['tipo']}")
-    
+
     st.markdown("**🤖 Modelos:**")
     # Texto escrito a mano en este archivo. ✅ Coincide con config.py
     # (QUERY_MODEL = gpt-4o-mini, GENERATION_MODEL = gpt-4o), pero si se
     # cambian allí, este texto no se actualiza solo.
     st.info("Consultas: GPT-4o-mini\nRespuestas: GPT-4o")
-    
+
     st.divider()
-    
+
     # `st.button` devuelve True solo en la pasada en la que se pulsa.
     # type="secondary" es el estilo normal; use_container_width=True
     # hace que el botón ocupe todo el ancho de la barra.
@@ -119,7 +124,7 @@ col1, col2 = st.columns([2, 1])
 # ============================================================
 with col1:
     st.markdown("### 💬 Chat")
-    
+
     # Mostrar historial de mensajes
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
@@ -137,13 +142,13 @@ with col1:
 # ============================================================
 with col2:
     st.markdown("### 📄 Documentos Relevantes")
-    
+
     # Mostrar documentos de la última consulta
     if st.session_state.messages:
         last_message = st.session_state.messages[-1]
         if last_message["role"] == "assistant" and "docs" in last_message:
             docs = last_message["docs"]
-            
+
             if docs:
                 for doc in docs:
                     with st.expander(f"📄 Fragmento {doc['fragmento']}", expanded=False):
@@ -172,7 +177,7 @@ if prompt := st.chat_input("Escribe tu consulta sobre contratos de arrendamiento
     # es independiente.
     # La pregunta se guarda ANTES de llamar al RAG.
     st.session_state.messages.append({"role": "user", "content": prompt})
-    
+
     # Generar respuesta
     # `st.spinner` muestra el mensaje mientras se ejecuta el bloque.
     with st.spinner("🔍 Analizando..."):
@@ -183,7 +188,7 @@ if prompt := st.chat_input("Escribe tu consulta sobre contratos de arrendamiento
         # fragmentos. (Con un rag_system que sí lanzara, la ejecución se
         # interrumpiría y la pregunta quedaría sin respuesta: comprobado ✅.)
         st.session_state.messages.append({"role": "assistant", "content": response, "docs": docs})
-    
+
     # Recargar para mostrar los nuevos mensajes
     # El historial y el panel de fragmentos ya se pintaron más arriba
     # con los datos antiguos; el rerun los vuelve a pintar con los nuevos.
@@ -201,10 +206,9 @@ if prompt := st.chat_input("Escribe tu consulta sobre contratos de arrendamiento
 # Footer
 st.divider()
 st.markdown(
-    "<div style='text-align: center; color: #666;'>🏛️ Asistente Legal con MMR Retriever</div>", 
+    "<div style='text-align: center; color: #666;'>🏛️ Asistente Legal con MMR Retriever</div>",
     unsafe_allow_html=True
 )
-
 
 # ============================================================
 # 💡 SUGERENCIAS (no aplicadas — el código original se respeta)

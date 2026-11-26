@@ -5,8 +5,8 @@ QUERY_MODEL = "gpt-4o-mini"
 GENERATION_MODEL = "gpt-4o"
 
 # Configuración del vector store
-# Ruta ABSOLUTA de la base Chroma, de otro usuario/equipo: cámbiala por la tuya.
-CHROMA_DB_PATH = "C:\\Users\\santiago\\curso_langchain\\Tema 3\\chroma_db"
+# Ruta ABSOLUTA de la base Chroma en tu WSL (la misma que crean 3.6 y 1.3); cámbiala si mueves el proyecto.
+CHROMA_DB_PATH = "/home/mmbal/proyectos/curso-langchain/Tema3/chroma_db"
 
 # Configuración del retriever
 # MMR: SEARCH_K = fragmentos finales; MMR_FETCH_K = candidatos previos;

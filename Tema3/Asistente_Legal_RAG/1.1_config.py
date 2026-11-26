@@ -22,9 +22,9 @@ GENERATION_MODEL = "gpt-4o"
 # ============================================================
 # Configuración del vector store
 # Carpeta donde Chroma guarda/lee sus datos (persist_directory).
-# Es una ruta absoluta de Windows de OTRO usuario/equipo: en tu máquina habrá que
-# cambiarla. No se copia aquí para no repetir un nombre de usuario ajeno.
-CHROMA_DB_PATH = "C:\\Users\\santiago\\curso_langchain\\Tema 3\\chroma_db"
+# Ruta absoluta de tu WSL: la misma carpeta donde 3.6 y 1.3 crean la base. Cambio respecto al
+# original, que traía una ruta de Windows de otro usuario/equipo. Si mueves el proyecto, cámbiala.
+CHROMA_DB_PATH = "/home/mmbal/proyectos/curso-langchain/Tema3/chroma_db"
 
 # ============================================================
 # BLOQUE 2 — RETRIEVER MMR
@@ -61,7 +61,7 @@ SIMILARITY_THRESHOLD = 0.70
 # ============================================================
 # 1) Las constantes podrían leerse de un `.env` (sobre todo la ruta y el modelo). No lo aplico.
 #
-# 2) `CHROMA_DB_PATH` es absoluta y de otro equipo: mejor una ruta relativa al proyecto.
+# 2) `CHROMA_DB_PATH` es absoluta (de tu WSL): mejor una ruta relativa al proyecto.
 #    No lo aplico.
 #
 # 3) `SIMILARITY_THRESHOLD` no tiene efecto; conviene quitarlo o aplicarlo de verdad con

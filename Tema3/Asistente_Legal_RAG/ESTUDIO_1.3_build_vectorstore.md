@@ -4,6 +4,9 @@
 
 Archivos de esta lección: `1.3_build_vectorstore.py` (comentado), `1.3_build_vectorstore_limpio.py` (limpio) y `build_vectorstore.py` (el ejecutable del proyecto). Los tres tienen **el mismo código** (AST idéntico).
 
+>
+> **Cambios de proyecto (rutas e importaciones).** Los archivos numerados se importan entre sí desde las versiones `_limpio`: antes de `from config import EMBEDDING_MODEL, CHROMA_DB_PATH` se añadió `import modulos_limpios` (ver `modulos_limpios.py`), que traduce `config`, `prompts` y `rag_system` a `1.1_config_limpio.py`, `1.2_prompts_limpio.py` y `1.4_rag_system_limpio.py`. Hace falta porque un módulo cuyo nombre empieza por un número y contiene un punto no se puede importar con `import` normal. Los archivos sin número (`app.py`, `config.py`…) se importan de la forma habitual. `CHROMA_DB_PATH` (definido en `config.py` / `1.1_config_limpio.py`) es `/home/mmbal/proyectos/curso-langchain/Tema3/chroma_db`. La carpeta de PDF por defecto (`../contratos`) es `/home/mmbal/proyectos/curso-langchain/Tema3/contratos` si el proyecto está en `Tema3/Asistente_Legal_RAG`. ✅ Probado de punta a punta (build → consulta → app con `streamlit.testing`) con modelos simulados en la estructura `…/Tema3/Asistente_Legal_RAG` y `…/Tema3/contratos`; no con la API real.
+
 ---
 
 ## 1. Tutorial — de cero a una base funcionando

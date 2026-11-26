@@ -34,7 +34,8 @@
 # modelo con el que se construye la base debe ser el mismo con el que se consulta.
 # Aquí se importan solo los dos nombres necesarios (a diferencia de rag_system.py, que usa
 # "from config import *").
-# Ojo: CHROMA_DB_PATH es una ruta absoluta de config.py; ajústala a tu equipo.
+# Ojo: CHROMA_DB_PATH es una ruta absoluta de tu WSL definida en config.py (la misma carpeta que
+# usa 3.6); si mueves el proyecto, cámbiala allí.
 # ==============================================================================
 import argparse
 import hashlib
@@ -46,6 +47,11 @@ from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+# Importante: los archivos numerados se importan entre sí desde las versiones _limpio.
+# modulos_limpios.py hace que "config", "prompts" y "rag_system" se carguen desde
+# 1.1_config_limpio.py, 1.2_prompts_limpio.py y 1.4_rag_system_limpio.py (un módulo cuyo nombre
+# empieza por un número no se puede importar con "import" normal). Debe ir ANTES.
+import modulos_limpios
 from config import EMBEDDING_MODEL, CHROMA_DB_PATH
 
 

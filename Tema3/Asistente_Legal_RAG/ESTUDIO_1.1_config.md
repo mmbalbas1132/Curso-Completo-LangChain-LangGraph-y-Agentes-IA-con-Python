@@ -2,7 +2,7 @@
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `config.py` (original, sin modificar) y sus versiones `1.1_config.py` (comentada) y `1.1_config_limpio.py` (limpia), con código idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)*. `config.py` solo define constantes y no usa LangChain; para saber **dónde se usa cada constante** se leyó `rag_system.py` (documento 1.4), y varias comprobaciones ✅ se hicieron ejecutándolo con modelos simulados (`langchain-core` 1.8.4, `langchain-classic` 1.1.0, `chromadb` 1.5.9). **La ruta de `CHROMA_DB_PATH` se muestra con el nombre de usuario sustituido por `<usuario>`** (única diferencia con el archivo).
+> **Procedencia.** Documento elaborado a partir de `config.py` (original; la única línea de código cambiada es `CHROMA_DB_PATH`, lección 2) y sus versiones `1.1_config.py` (comentada) y `1.1_config_limpio.py` (limpia), con código idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)*. `config.py` solo define constantes y no usa LangChain; para saber **dónde se usa cada constante** se leyó `rag_system.py` (documento 1.4), y varias comprobaciones ✅ se hicieron ejecutándolo con modelos simulados (`langchain-core` 1.8.4, `langchain-classic` 1.1.0, `chromadb` 1.5.9). `config.py` y las dos versiones 1.1 tienen la misma ruta de WSL en `CHROMA_DB_PATH`.
 
 ---
 
@@ -65,10 +65,10 @@ Los nombres de los modelos de OpenAI no se contrastaron con documentación ofici
 
 ```python
 # Configuración del vector store
-CHROMA_DB_PATH = "C:\\Users\\<usuario>\\curso_langchain\\Tema 3\\chroma_db"
+CHROMA_DB_PATH = "/home/mmbal/proyectos/curso-langchain/Tema3/chroma_db"
 ```
 
-Carpeta donde `Chroma` guarda y lee los datos (`persist_directory`). ✅ Es una ruta **absoluta de Windows de otro usuario/equipo**: en tu equipo habrá que cambiarla. La documentación oficial de Chroma indica que `persist_directory` sirve para guardar los datos entre ejecuciones.
+Carpeta donde `Chroma` guarda y lee los datos (`persist_directory`). 🔀 El original traía una ruta **absoluta de Windows de otro usuario/equipo** (`C:\Users\…\Tema 3\chroma_db`); se cambió a la ruta de tu WSL, la misma carpeta donde 3.6 y `1.3_build_vectorstore.py` crean la base. Si mueves el proyecto, habrá que cambiarla. La documentación oficial de Chroma indica que `persist_directory` sirve para guardar los datos entre ejecuciones.
 
 ### Lección 3: retriever MMR (líneas 9 a 13)
 
@@ -124,7 +124,7 @@ Baja `MMR_DIVERSITY_LAMBDA` (0 = máxima diversidad, 1 = mínima). ✅
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
-| La base vectorial no se encuentra o sale vacía | `CHROMA_DB_PATH` apunta a una ruta de otro equipo | Poner tu ruta |
+| La base vectorial no se encuentra o sale vacía | `CHROMA_DB_PATH` apunta a una carpeta que no es la de la base (si no existe, Chroma crea una vacía ✅) | Poner la ruta de la base creada por 3.6 o 1.3 |
 | Cambiar `SIMILARITY_THRESHOLD` no cambia nada | El parámetro se ignora en `EnsembleRetriever` ✅ | No esperar efecto |
 | Devuelve más/menos de 2 fragmentos | `SEARCH_K` | Ajustar `SEARCH_K` |
 
@@ -137,7 +137,7 @@ Baja `MMR_DIVERSITY_LAMBDA` (0 = máxima diversidad, 1 = mínima). ✅
 | `EMBEDDING_MODEL` | `str` | `text-embedding-3-large` | Embeddings |
 | `QUERY_MODEL` | `str` | `gpt-4o-mini` | Variantes de consulta |
 | `GENERATION_MODEL` | `str` | `gpt-4o` | Respuesta final |
-| `CHROMA_DB_PATH` | `str` | ruta Windows | Base Chroma |
+| `CHROMA_DB_PATH` | `str` | ruta de tu WSL | Base Chroma |
 | `SEARCH_TYPE` | `str` | `mmr` | Tipo de búsqueda |
 | `MMR_DIVERSITY_LAMBDA` | `float` | `0.7` | `lambda_mult` |
 | `MMR_FETCH_K` | `int` | `20` | `fetch_k` |
@@ -164,7 +164,7 @@ Importa todos los nombres sin decir cuáles; es cómodo pero oculta de dónde vi
 
 ### Observaciones sobre el archivo
 
-- Ruta absoluta de otro usuario/equipo. ✅
+- 🔀 Ruta original de otro usuario/equipo (Windows): sustituida por la ruta de tu WSL. Sigue siendo absoluta.
 - `SIMILARITY_THRESHOLD` no tiene efecto. 🔀 ✅
 - Los pesos `[0.7, 0.3]` del ensemble no están aquí: están escritos a mano en `rag_system.py`.
 - "Configuracion" sin tilde en un comentario del original.
@@ -188,7 +188,7 @@ Importa todos los nombres sin decir cuáles; es cómodo pero oculta de dónde vi
 3. Máxima diversidad entre los resultados ✅.
 4. `SEARCH_K` son los fragmentos finales; `MMR_FETCH_K`, los candidatos previos.
 5. Porque `EnsembleRetriever` no tiene ese parámetro y lo ignora ✅.
-6. Es una ruta absoluta de otro usuario/equipo.
+6. Es absoluta, así que depende del equipo: el original traía la de otro usuario y hubo que cambiarla por la de tu WSL.
 7. El `EnsembleRetriever` que combina MMR + MultiQuery con similitud.
 
 ---
