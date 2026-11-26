@@ -17,8 +17,8 @@ print(f"Se cargaron {len(documentos)} documentos desde el directorio contratos."
 
 # Trocea en chunks de 1000 caracteres con un solape de 200.
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,
-    chunk_overlap=200
+    chunk_size=5000,
+    chunk_overlap=1000
 )
 
 docs_split = text_splitter.split_documents(documentos)
