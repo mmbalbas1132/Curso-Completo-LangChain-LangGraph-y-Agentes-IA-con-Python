@@ -23,9 +23,9 @@ load_dotenv()
 # cache_resource: la función se ejecuta una vez y se reutiliza entre reejecuciones de Streamlit.
 @st.cache_resource
 def initialize_rag_system():
-    # Vector Store
+    # Vector Store Chroma con embeddings de OpenAI
     vectorestore = Chroma(
-        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL), \
+        embedding_function=OpenAIEmbeddings(model=EMBEDDING_MODEL),\
         persist_directory=CHROMA_DB_PATH
     )
 
@@ -33,7 +33,7 @@ def initialize_rag_system():
     llm_queries = ChatOpenAI(model=QUERY_MODEL, temperature=0)
     llm_generation = ChatOpenAI(model=GENERATION_MODEL, temperature=0)
 
-    # Retriever MMR (Maximal Margin Relevance)
+    # Retriever MMR (Maximal Margin Relevance) busca los documentos más relevantes y diversos.
     base_retriever = vectorestore.as_retriever(
         search_type=SEARCH_TYPE,
         search_kwargs={
@@ -43,7 +43,7 @@ def initialize_rag_system():
         }
     )
 
-    # Retriever adicional con similarity para comparar
+    # Retriever adicional con similarity para comparar y obtener documentos similares a la consulta.
     similarity_retriever = vectorestore.as_retriever(
         search_type="similarity",
         search_kwargs={"k": SEARCH_K}
