@@ -11,7 +11,7 @@
 #       valores: el texto de la respuesta y una lista de fragmentos (docs).
 #     · get_retriever_info(): devuelve un diccionario del que solo se lee
 #       la clave 'tipo'.
-#   ✅ Contrato confirmado al leer rag_system.py (ver 1.3): query_rag devuelve
+#   ✅ Contrato confirmado al leer rag_system.py (ver 1.4): query_rag devuelve
 #   (respuesta, docs_info) y get_retriever_info() un dict con 5 claves.
 # ============================================================
 
@@ -231,4 +231,4 @@ st.markdown(
 #    constante o un tipo compartido evitaría desajustes. No lo aplico.
 #
 # 7) ✅ Con LangChain 1.x, rag_system.py falla (imports y get_relevant_documents,
-#    ver 1.3) y esta interfaz mostraría solo el texto de error. No lo aplico.
+#    ver 1.4) y esta interfaz mostraría solo el texto de error. No lo aplico.

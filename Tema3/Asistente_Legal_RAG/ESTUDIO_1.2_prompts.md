@@ -16,7 +16,7 @@
 
 ### Qué necesitas
 
-- Documento 1.3 de Tema_1 (`PromptTemplate`) y 1.1/1.3 como contexto.
+- Documento 1.3 de Tema_1 (`PromptTemplate`) y 1.1/1.4 como contexto.
 
 ### Mapa del tema
 

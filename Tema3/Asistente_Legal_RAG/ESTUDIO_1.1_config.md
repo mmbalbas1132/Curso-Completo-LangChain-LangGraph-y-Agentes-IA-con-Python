@@ -2,7 +2,7 @@
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `config.py` (original, sin modificar) y sus versiones `1.1_config.py` (comentada) y `1.1_config_limpio.py` (limpia), con código idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)*. `config.py` solo define constantes y no usa LangChain; para saber **dónde se usa cada constante** se leyó `rag_system.py` (documento 1.3), y varias comprobaciones ✅ se hicieron ejecutándolo con modelos simulados (`langchain-core` 1.8.4, `langchain-classic` 1.1.0, `chromadb` 1.5.9). **La ruta de `CHROMA_DB_PATH` se muestra con el nombre de usuario sustituido por `<usuario>`** (única diferencia con el archivo).
+> **Procedencia.** Documento elaborado a partir de `config.py` (original, sin modificar) y sus versiones `1.1_config.py` (comentada) y `1.1_config_limpio.py` (limpia), con código idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado o comprobado)*. `config.py` solo define constantes y no usa LangChain; para saber **dónde se usa cada constante** se leyó `rag_system.py` (documento 1.4), y varias comprobaciones ✅ se hicieron ejecutándolo con modelos simulados (`langchain-core` 1.8.4, `langchain-classic` 1.1.0, `chromadb` 1.5.9). **La ruta de `CHROMA_DB_PATH` se muestra con el nombre de usuario sustituido por `<usuario>`** (única diferencia con el archivo).
 
 ---
 
@@ -16,7 +16,7 @@
 
 ### Qué necesitas
 
-- Haber visto 1.4 (la interfaz) y tener una idea de qué es un RAG.
+- Tener una idea de qué es un RAG. Este es el primer documento del proyecto: no necesitas haber visto los demás (1.2 prompts, 1.3 construcción de la base, 1.4 motor RAG y 1.5 interfaz vienen después).
 
 ### Mapa del tema
 

@@ -1,8 +1,8 @@
-# 1.4 Interfaz de chat para un asistente legal RAG con Streamlit (`app.py`)
+# 1.5 Interfaz de chat para un asistente legal RAG con Streamlit (`app.py`)
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `app.py` (código original, sin modificar) y sus dos versiones `1.4_app.py` (comentada) y `1.4_app_limpio.py` (limpia), cuyo código es idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)* = procede solo del archivo; ⚠️ *(no contrastado)* = no se pudo confirmar con este archivo ni con las fuentes permitidas; 🔀 *(discrepancia)*; ✅ *(ejecutado)* = observado al ejecutar la app con **Streamlit 1.65.0** y un módulo `rag_system` **simulado** (`streamlit.testing.v1.AppTest`). Este archivo **no usa ninguna clase de LangChain directamente**: toda la lógica RAG está en `rag_system.py` (documento 1.3). *Actualización:* este documento se escribió antes de leer `rag_system.py`, `config.py` y `prompts.py` (documentos 1.1, 1.2 y 1.3); tras leerlos se corrigieron las afirmaciones que dependían de ellos (los ⚠️ de "deducido del uso" quedan **confirmados** ✅ salvo lo indicado, y se corrigió lo relativo a los errores). La documentación de Streamlit no es una fuente permitida; lo que se afirma de Streamlit es 📘 o ✅.
+> **Procedencia.** Documento elaborado a partir de `app.py` (código original, sin modificar) y sus dos versiones `1.5_app.py` (comentada) y `1.5_app_limpio.py` (limpia), cuyo código es idéntico (✅ comprobado con el árbol sintáctico). Marcas: 📘 *(material del curso)* = procede solo del archivo; ⚠️ *(no contrastado)* = no se pudo confirmar con este archivo ni con las fuentes permitidas; 🔀 *(discrepancia)*; ✅ *(ejecutado)* = observado al ejecutar la app con **Streamlit 1.65.0** y un módulo `rag_system` **simulado** (`streamlit.testing.v1.AppTest`). Este archivo **no usa ninguna clase de LangChain directamente**: toda la lógica RAG está en `rag_system.py` (documento 1.4). *Actualización:* este documento se escribió antes de leer `rag_system.py`, `config.py` y `prompts.py` (documentos 1.1, 1.2 y 1.4); tras leerlos se corrigieron las afirmaciones que dependían de ellos (los ⚠️ de "deducido del uso" quedan **confirmados** ✅ salvo lo indicado, y se corrigió lo relativo a los errores). La documentación de Streamlit no es una fuente permitida; lo que se afirma de Streamlit es 📘 o ✅.
 
 ---
 
@@ -75,7 +75,7 @@ from rag_system import query_rag, get_retriever_info
 | `import streamlit as st` | Biblioteca de la interfaz web. |
 | `from rag_system import ...` | Importa dos funciones del propio proyecto. |
 
-Por cómo se usan más abajo, y ✅ confirmado al leer `rag_system.py` (documento 1.3):
+Por cómo se usan más abajo, y ✅ confirmado al leer `rag_system.py` (documento 1.4):
 
 - `query_rag(prompt)` devuelve **dos valores**: el texto de la respuesta y la lista de fragmentos (`docs_info`).
 - `get_retriever_info()` devuelve un diccionario de 5 claves; aquí solo se lee `'tipo'` (con la configuración actual: `MMR + MultiQuery + Hybrid`).
@@ -201,7 +201,7 @@ with col2:
 
 **Comprobado** ✅: tras una pregunta con un fragmento simulado apareció un expander con la etiqueta `📄 Fragmento 1`.
 
-✅ Las claves `fragmento`, `fuente`, `pagina` y `contenido` son las que genera `query_rag` en `rag_system.py` (documento 1.3): es un **contrato implícito**; si cambian allí, esta parte falla.
+✅ Las claves `fragmento`, `fuente`, `pagina` y `contenido` son las que genera `query_rag` en `rag_system.py` (documento 1.4): es un **contrato implícito**; si cambian allí, esta parte falla.
 
 ---
 
@@ -229,7 +229,7 @@ if prompt := st.chat_input("Escribe tu consulta sobre contratos de arrendamiento
 
 **¿Por qué el `st.rerun()` aquí sí es necesario?** El historial y el panel de fragmentos se pintan **antes** (columnas 1 y 2), con la lista antigua. **Comprobado** ✅: sin ese `st.rerun()`, en esa pasada no se pinta ninguna burbuja ni fragmento; con él aparecen la pregunta, la respuesta y el fragmento.
 
-**Corrección sobre los errores.** `app.py` no tiene `try/except`, y ✅ con un `rag_system` simulado que lanzaba una excepción la ejecución se interrumpía dejando la pregunta sin respuesta. **Pero el `query_rag` real captura todas las excepciones** y devuelve `(texto_de_error, [])` (documento 1.3): en la app real el error se guarda y se muestra **como si fuera la respuesta del asistente**, sin fragmentos.
+**Corrección sobre los errores.** `app.py` no tiene `try/except`, y ✅ con un `rag_system` simulado que lanzaba una excepción la ejecución se interrumpía dejando la pregunta sin respuesta. **Pero el `query_rag` real captura todas las excepciones** y devuelve `(texto_de_error, [])` (documento 1.4): en la app real el error se guarda y se muestra **como si fuera la respuesta del asistente**, sin fragmentos.
 
 ---
 
@@ -243,7 +243,7 @@ st.markdown(
 )
 ```
 
-`unsafe_allow_html=True` permite que `st.markdown` interprete HTML. Aquí el HTML es un texto fijo del propio archivo, no datos del usuario. El texto nombra **MMR** (*Maximal Marginal Relevance*, un tipo de búsqueda de fragmentos); cómo se configura está en `config.py` y `rag_system.py` (documentos 1.1 y 1.3).
+`unsafe_allow_html=True` permite que `st.markdown` interprete HTML. Aquí el HTML es un texto fijo del propio archivo, no datos del usuario. El texto nombra **MMR** (*Maximal Marginal Relevance*, un tipo de búsqueda de fragmentos); cómo se configura está en `config.py` y `rag_system.py` (documentos 1.1 y 1.4).
 
 ### Ejercicios
 
@@ -269,7 +269,7 @@ Sustituye temporalmente `rag_system` por un módulo con las mismas dos funciones
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
-| La "respuesta" es un texto `Error al procesar la cosulta: ...` | `query_rag` captura la excepción y la devuelve como texto ✅ | Leer el mensaje; ver 1.3 (con LangChain 1.x falla por imports y `get_relevant_documents`) |
+| La "respuesta" es un texto `Error al procesar la cosulta: ...` | `query_rag` captura la excepción y la devuelve como texto ✅ | Leer el mensaje; ver 1.4 (con LangChain 1.x falla por imports y `get_relevant_documents`) |
 | La app se detiene y la pregunta queda sin respuesta | Solo ocurriría si `query_rag` lanzara una excepción (no pasa con el real) ✅ | — |
 | No aparecen fragmentos | La respuesta no trae `docs` o la lista está vacía | Revisar lo que devuelve `query_rag` |
 | `KeyError` en el panel de fragmentos | Faltan claves en un fragmento | Comprobar `fragmento`, `fuente`, `pagina`, `contenido` |
@@ -333,11 +333,11 @@ Así cada respuesta lleva consigo las fuentes que la respaldan y el panel derech
 
 ### ¿Por qué el historial no se envía al RAG?
 
-A `query_rag` solo se le pasa la pregunta actual y ✅ ni `query_rag` ni la cadena de `rag_system.py` guardan memoria (documento 1.3): cada pregunta se responde de forma independiente.
+A `query_rag` solo se le pasa la pregunta actual y ✅ ni `query_rag` ni la cadena de `rag_system.py` guardan memoria (documento 1.4): cada pregunta se responde de forma independiente.
 
 ### Lo que este documento no cubre
 
-- `rag_system.py`, `config.py` y `prompts.py`: se documentan aparte (1.1, 1.2 y 1.3).
+- `rag_system.py`, `config.py` y `prompts.py`: se documentan aparte (1.1, 1.2 y 1.4).
 - La ejecución real contra modelos (requiere claves).
 - La documentación oficial de Streamlit (no es fuente permitida); lo dicho de Streamlit es 📘 o ✅.
 
@@ -345,10 +345,10 @@ A `query_rag` solo se le pasa la pregunta actual y ✅ ni `query_rag` ni la cade
 
 - `app.py` no tiene `try/except`, pero `query_rag` ya captura todo: los fallos se muestran como respuesta del asistente. ✅
 - El texto de los modelos (`GPT-4o-mini` / `GPT-4o`) está escrito a mano (coincide con `config.py`). ✅
-- Con LangChain 1.x, `rag_system.py` falla (1.3) y la interfaz solo mostraría el texto de error. ✅
+- Con LangChain 1.x, `rag_system.py` falla (1.4) y la interfaz solo mostraría el texto de error. ✅
 - El `st.rerun()` del botón no es imprescindible; el del final sí. ✅
 - `get_retriever_info()` se llama en cada reejecución.
-- El archivo no lleva prefijo numérico (`app.py` dentro de la carpeta `Asistente_Legal_RAG`); se le asignó el número 1.4.
+- El archivo no lleva prefijo numérico (`app.py` dentro de la carpeta `Asistente_Legal_RAG`); se le asignó el número 1.5.
 
 ---
 
@@ -391,7 +391,7 @@ A `query_rag` solo se le pasa la pregunta actual y ✅ ni `query_rag` ni la cade
 
 ## Fuentes consultadas
 
-- Material del tema: `app.py` (original), `1.4_app.py` (comentada) y `1.4_app_limpio.py` (limpia), en `Tema_3/Asistente_Legal_RAG/`.
+- Material del tema: `app.py` (original), `1.5_app.py` (comentada) y `1.5_app_limpio.py` (limpia), en `Tema_3/Asistente_Legal_RAG/`.
 - Documentación oficial de LangChain: no se citan páginas porque este archivo no usa clases de LangChain directamente.
 - Comprobaciones ✅: Streamlit 1.65.0 con `streamlit.testing.v1.AppTest` y un `rag_system` simulado.
 

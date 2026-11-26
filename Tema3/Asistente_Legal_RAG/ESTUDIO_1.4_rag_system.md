@@ -1,8 +1,8 @@
-# 1.3 El motor RAG: Chroma, MultiQuery, búsqueda híbrida y cadena LCEL (`rag_system.py`)
+# 1.4 El motor RAG: Chroma, MultiQuery, búsqueda híbrida y cadena LCEL (`rag_system.py`)
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `rag_system.py` (original; **cambios posteriores, ✅ las únicas líneas de código distintas:** `Chroma` se importa de `langchain_chroma` en lugar de `langchain_community`; `PromptTemplate`, `MultiQueryRetriever` y `EnsembleRetriever` se importan de `langchain_core` / `langchain_classic` en lugar de `langchain.*`; y `get_relevant_documents` se sustituye por `.invoke`), sus versiones `1.3_rag_system.py` (comentada) y `1.3_rag_system_limpio.py` (limpia; código idéntico, ✅ AST) y la documentación oficial de LangChain. Se leyeron `config.py` y `prompts.py` (documentos 1.1 y 1.2) solo para saber qué valen las constantes importadas con `from ... import *`. Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado)*: el módulo **se ejecutó con modelos y embeddings simulados** (`FakeListChatModel`, `DeterministicFakeEmbedding`) y una base Chroma de prueba con 3 fragmentos, en un entorno con `langchain-core` 1.8.4, `langchain-classic` 1.1.0, `langchain-community` 0.4.2, `langchain-openai` 1.8.5, `chromadb` 1.5.9 y `streamlit` 1.67.0. **No se llamó a OpenAI**: las respuestas del modelo y la calidad de la recuperación no se describen. Lo que se afirma de Streamlit es 📘 o ✅.
+> **Procedencia.** Documento elaborado a partir de `rag_system.py` (original; **cambios posteriores, ✅ las únicas líneas de código distintas:** `Chroma` se importa de `langchain_chroma` en lugar de `langchain_community`; `PromptTemplate`, `MultiQueryRetriever` y `EnsembleRetriever` se importan de `langchain_core` / `langchain_classic` en lugar de `langchain.*`; y `get_relevant_documents` se sustituye por `.invoke`), sus versiones `1.4_rag_system.py` (comentada) y `1.4_rag_system_limpio.py` (limpia; código idéntico, ✅ AST) y la documentación oficial de LangChain. Se leyeron `config.py` y `prompts.py` (documentos 1.1 y 1.2) solo para saber qué valen las constantes importadas con `from ... import *`. Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado)*: el módulo **se ejecutó con modelos y embeddings simulados** (`FakeListChatModel`, `DeterministicFakeEmbedding`) y una base Chroma de prueba con 3 fragmentos, en un entorno con `langchain-core` 1.8.4, `langchain-classic` 1.1.0, `langchain-community` 0.4.2, `langchain-openai` 1.8.5, `chromadb` 1.5.9 y `streamlit` 1.67.0. **No se llamó a OpenAI**: las respuestas del modelo y la calidad de la recuperación no se describen. Lo que se afirma de Streamlit es 📘 o ✅.
 
 ---
 
@@ -327,7 +327,7 @@ Este archivo no incluye ejercicios propuestos.
 
 ### ¿Cómo hago que funcione con LangChain 1.x?
 
-**Ya está aplicado** en `rag_system.py` y en sus versiones 1.3. Si trabajas con una copia del original, cambia (✅ probado) tres importaciones y una llamada:
+**Ya está aplicado** en `rag_system.py` y en sus versiones 1.4. Si trabajas con una copia del original, cambia (✅ probado) tres importaciones y una llamada:
 
 ```python
 from langchain_core.prompts import PromptTemplate
@@ -464,6 +464,6 @@ Para que `app.py` nunca reciba una excepción. A cambio, los errores se muestran
 - Chroma: <https://docs.langchain.com/oss/python/integrations/vectorstores/chroma>
 - `EnsembleRetriever` (referencia): <https://reference.langchain.com/python/langchain-classic/retrievers/ensemble/EnsembleRetriever>
 - `MultiQueryRetriever.from_llm` (referencia): <https://reference.langchain.com/python/langchain-classic/retrievers/multi_query/MultiQueryRetriever/from_llm>
-- Material del tema: `rag_system.py`, `1.3_rag_system.py`, `1.3_rag_system_limpio.py`, y (solo para ver los valores) `config.py` y `prompts.py`, en `Tema_3/Asistente_Legal_RAG/`.
+- Material del tema: `rag_system.py`, `1.4_rag_system.py`, `1.4_rag_system_limpio.py`, y (solo para ver los valores) `config.py` y `prompts.py`, en `Tema_3/Asistente_Legal_RAG/`.
 
 *Documento generado a partir de los materiales del tema y la documentación oficial de LangChain.*
