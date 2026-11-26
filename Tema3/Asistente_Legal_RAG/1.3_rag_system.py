@@ -2,24 +2,25 @@
 # BLOQUE 0 — IMPORTS Y COMPATIBILIDAD
 # ------------------------------------------------------------
 # Este módulo contiene toda la lógica RAG; app.py solo pinta la interfaz.
-# - Chroma: base vectorial. ✅ La clase de langchain_community está deprecada; la
-#   documentación oficial usa `from langchain_chroma import Chroma`.
+# - Chroma: base vectorial. Se importa de `langchain_chroma` (pip install -U langchain-chroma),
+#   como en la documentación oficial. Cambio respecto al original, que la importaba de
+#   `langchain_community`, donde la clase está deprecada ✅. Con `langchain_chroma` el
+#   retriever MMR/similarity funciona igual y abre bases creadas con la clase antigua ✅.
 # - OpenAIEmbeddings / ChatOpenAI: embeddings y modelo de chat de OpenAI.
-# - PromptTemplate, MultiQueryRetriever, EnsembleRetriever importados de `langchain.*`:
-#   🔀 con langchain 1.5.2 dan ModuleNotFoundError ✅. Rutas actuales:
-#     from langchain_core.prompts import PromptTemplate
-#     from langchain_classic.retrievers.multi_query import MultiQueryRetriever
-#     from langchain_classic.retrievers import EnsembleRetriever
+# - PromptTemplate, MultiQueryRetriever, EnsembleRetriever: se importan de `langchain_core.prompts`
+#   y `langchain_classic.retrievers` (pip install -U langchain-classic). Cambio respecto al
+#   original, que los importaba de `langchain.prompts` / `langchain.retrievers`: 🔀 con
+#   LangChain 1.x esas rutas dan ModuleNotFoundError ✅.
 # - RunnablePassthrough / StrOutputParser: piezas de LCEL (entrada sin cambios / AIMessage a str).
 # - streamlit: solo para `st.cache_resource`.
 # ============================================================
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.retrievers.multi_query import MultiQueryRetriever
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers.multi_query import MultiQueryRetriever
+from langchain_classic.retrievers import EnsembleRetriever
 import streamlit as st
 
 # `from config import *` y `from prompts import *` traen TODAS las constantes de esos
@@ -161,11 +162,12 @@ def query_rag(question):
         # Obtener documentos para mostrarlos
         # Segunda recuperación, solo para mostrar fragmentos: repite la llamada de MultiQuery
         # (otra llamada al modelo de consultas).
-        # 🔀 `get_relevant_documents` estaba marcado obsoleto desde langchain-core 0.1.46 con
-        # eliminación en 1.0; en langchain-core 1.8.4 NO existe ✅ (AttributeError). La forma
-        # actual es `retriever.invoke(question)` ✅. Con este código en 1.x se salta al `except`
-        # y la "respuesta" que ve el usuario es el texto de error.
-        docs = retriever.get_relevant_documents(question)
+        # Cambio respecto al original: se usa `retriever.invoke(question)` ✅ (la forma actual).
+        # El original llamaba a `get_relevant_documents`, marcado obsoleto desde langchain-core
+        # 0.1.46 con eliminación en 1.0; en langchain-core 1.8.4 NO existe ✅ (AttributeError),
+        # así que con 1.x se saltaba al `except` y la "respuesta" que veía el usuario era el
+        # texto de error.
+        docs = retriever.invoke(question)
 
         # Formatear los documentos para mostrar
         docs_info = []
@@ -211,23 +213,18 @@ def get_retriever_info():
 # ============================================================
 # 💡 SUGERENCIAS (no aplicadas — el código original se respeta)
 # ============================================================
-# 1) Actualizar las importaciones a LangChain 1.x (langchain_core / langchain_classic) y
-#    usar `langchain_chroma`. No lo aplico.
-#
-# 2) Cambiar `get_relevant_documents` por `retriever.invoke(...)`. No lo aplico.
-#
-# 3) Devolver `final_retriever` para mostrar los fragmentos realmente usados y evitar la
+# 1) Devolver `final_retriever` para mostrar los fragmentos realmente usados y evitar la
 #    segunda llamada de MultiQuery. No lo aplico.
 #
-# 4) Quitar `similarity_threshold` de EnsembleRetriever (se ignora) y mover los pesos a
+# 2) Quitar `similarity_threshold` de EnsembleRetriever (se ignora) y mover los pesos a
 #    config.py. No lo aplico.
 #
-# 5) En `query_rag`, no ocultar los errores como si fueran respuestas: devolver un
+# 3) En `query_rag`, no ocultar los errores como si fueran respuestas: devolver un
 #    indicador de error o relanzar. No lo aplico.
 #
-# 6) Evitar `from config import *` / `from prompts import *`. No lo aplico.
+# 4) Evitar `from config import *` / `from prompts import *`. No lo aplico.
 #
-# 7) Corregir erratas (`vectorestore`, "Margin", "cosulta", la `\` sobrante tras `embedding_function`).
+# 5) Corregir erratas (`vectorestore`, "Margin", "cosulta", la `\` sobrante tras `embedding_function`).
 #    No lo aplico.
 #
-# 8) Añadir tipos y docstrings a `query_rag`. No lo aplico.
+# 6) Añadir tipos y docstrings a `query_rag`. No lo aplico.

@@ -1,12 +1,12 @@
 # ⚠️ Escrito para LangChain 0.x: con langchain 1.x fallan los imports de `langchain.prompts` y
 # `langchain.retrievers...` (ahora en langchain_core.prompts / langchain_classic.retrievers).
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.retrievers.multi_query import MultiQueryRetriever
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers.multi_query import MultiQueryRetriever
+from langchain_classic.retrievers import EnsembleRetriever
 import streamlit as st
 
 # Constantes (config.py) y plantillas (prompts.py), importadas con `*`.
@@ -110,8 +110,8 @@ def query_rag(question):
         response = rag_chain.invoke(question)
 
         # Obtener documentos para mostrarlos
-        # Ojo: retriever sin ensemble, y `get_relevant_documents` ya no existe en langchain-core 1.x (usar .invoke).
-        docs = retriever.get_relevant_documents(question)
+        # Ojo: retriever sin ensemble. Se usa .invoke (`get_relevant_documents` ya no existe en langchain-core 1.x).
+        docs = retriever.invoke(question)
 
         # Formatear los documentos para mostrar
         docs_info = []

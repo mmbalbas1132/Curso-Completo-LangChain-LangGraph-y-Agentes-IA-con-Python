@@ -2,7 +2,7 @@
 
 > **Cómo usar este texto.** Léelo en orden: *Antes de empezar*, *Tutorial* y, cuando lo necesites, *Guía práctica*, *Referencia* y *Explicación*. Al final hay una *Autoevaluación* con respuestas.
 >
-> **Procedencia.** Documento elaborado a partir de `rag_system.py` (original, sin modificar), sus versiones `1.3_rag_system.py` (comentada) y `1.3_rag_system_limpio.py` (limpia; código idéntico, ✅ AST) y la documentación oficial de LangChain. Se leyeron `config.py` y `prompts.py` (documentos 1.1 y 1.2) solo para saber qué valen las constantes importadas con `from ... import *`. Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado)*: el módulo **se ejecutó con modelos y embeddings simulados** (`FakeListChatModel`, `DeterministicFakeEmbedding`) y una base Chroma de prueba con 3 fragmentos, en un entorno con `langchain-core` 1.8.4, `langchain-classic` 1.1.0, `langchain-community` 0.4.2, `langchain-openai` 1.8.5, `chromadb` 1.5.9 y `streamlit` 1.67.0. **No se llamó a OpenAI**: las respuestas del modelo y la calidad de la recuperación no se describen. Lo que se afirma de Streamlit es 📘 o ✅.
+> **Procedencia.** Documento elaborado a partir de `rag_system.py` (original; **cambios posteriores, ✅ las únicas líneas de código distintas:** `Chroma` se importa de `langchain_chroma` en lugar de `langchain_community`; `PromptTemplate`, `MultiQueryRetriever` y `EnsembleRetriever` se importan de `langchain_core` / `langchain_classic` en lugar de `langchain.*`; y `get_relevant_documents` se sustituye por `.invoke`), sus versiones `1.3_rag_system.py` (comentada) y `1.3_rag_system_limpio.py` (limpia; código idéntico, ✅ AST) y la documentación oficial de LangChain. Se leyeron `config.py` y `prompts.py` (documentos 1.1 y 1.2) solo para saber qué valen las constantes importadas con `from ... import *`. Marcas: 📘 *(material del curso)*; ⚠️ *(no contrastado)*; 🔀 *(discrepancia)*; ✅ *(ejecutado)*: el módulo **se ejecutó con modelos y embeddings simulados** (`FakeListChatModel`, `DeterministicFakeEmbedding`) y una base Chroma de prueba con 3 fragmentos, en un entorno con `langchain-core` 1.8.4, `langchain-classic` 1.1.0, `langchain-community` 0.4.2, `langchain-openai` 1.8.5, `chromadb` 1.5.9 y `streamlit` 1.67.0. **No se llamó a OpenAI**: las respuestas del modelo y la calidad de la recuperación no se describen. Lo que se afirma de Streamlit es 📘 o ✅.
 
 ---
 
@@ -58,30 +58,30 @@ Este módulo no se ejecuta solo: lo importa `app.py`. Para ejecutarlo hace falta
 ### Lección 1: importaciones (líneas 1 a 11)
 
 ```python
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
-from langchain.retrievers.multi_query import MultiQueryRetriever
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers.multi_query import MultiQueryRetriever
+from langchain_classic.retrievers import EnsembleRetriever
 import streamlit as st
 
 from config import *
 from prompts import *
 ```
 
-| Línea | Qué hace | Estado con `langchain` 1.5.2 ✅ |
+| Línea | Qué hace | Estado con LangChain 1.x ✅ |
 |---|---|---|
-| `Chroma` de `langchain_community` | Base vectorial | Funciona, pero con aviso: clase **deprecada** en 0.2.9 y reemplazada por `langchain_chroma` (la documentación oficial usa `from langchain_chroma import Chroma`). `langchain-community` además avisa de que se está retirando. |
+| `Chroma` de `langchain_chroma` | Base vectorial | **Cambiado respecto al original:** el original importaba `Chroma` de `langchain_community`, clase **deprecada** en 0.2.9 ✅. Con `langchain_chroma` (como en la documentación oficial) ✅ el retriever MMR y el de similitud funcionan igual y se abre una base creada con la clase antigua (probado con embeddings simulados). `pip install -U langchain-chroma`. `langchain-community` además avisa de que se está retirando. |
 | `OpenAIEmbeddings, ChatOpenAI` | Embeddings y chat | Funcionan |
-| `from langchain.prompts import PromptTemplate` | Plantillas | 🔀 **`ModuleNotFoundError`** → usar `from langchain_core.prompts import PromptTemplate` |
-| `from langchain.retrievers.multi_query ...` | Multi-consulta | 🔀 **`ModuleNotFoundError`** → `from langchain_classic.retrievers.multi_query import MultiQueryRetriever` |
-| `from langchain.retrievers import EnsembleRetriever` | Combinación | 🔀 **`ModuleNotFoundError`** → `from langchain_classic.retrievers import EnsembleRetriever` |
+| `from langchain_core.prompts import PromptTemplate` | Plantillas | **Cambiado respecto al original** (`from langchain.prompts …`, 🔀 **`ModuleNotFoundError`** en 1.x ✅). Funciona ✅ |
+| `from langchain_classic.retrievers.multi_query import MultiQueryRetriever` | Multi-consulta | **Cambiado respecto al original** (`langchain.retrievers.multi_query`, 🔀 `ModuleNotFoundError` en 1.x ✅). Requiere `pip install -U langchain-classic`. Funciona ✅ |
+| `from langchain_classic.retrievers import EnsembleRetriever` | Combinación | **Cambiado respecto al original** (`langchain.retrievers`, 🔀 `ModuleNotFoundError` en 1.x ✅). Funciona ✅ |
 | `RunnablePassthrough`, `StrOutputParser` | LCEL | Funcionan |
 | `from config import *` / `from prompts import *` | Traen todas las constantes | Ver 1.1 y 1.2 |
 
-**Conclusión** ✅: el archivo está escrito para **LangChain 0.x**. En 1.x hay que cambiar tres importaciones. (El comentario del archivo 1.3 ya avisaba de que `langchain.prompts` es una ruta antigua.)
+**Conclusión** ✅: el archivo original estaba escrito para **LangChain 0.x**. Se actualizaron tres importaciones (más `Chroma` y la llamada a `.invoke`) y ahora funciona con LangChain 1.x. Requiere `pip install -U langchain-classic langchain-chroma`.
 
 ---
 
@@ -260,7 +260,7 @@ def query_rag(question):
         response = rag_chain.invoke(question)
 
         # Obtener documentos para mostrarlos
-        docs = retriever.get_relevant_documents(question)
+        docs = retriever.invoke(question)
 
         # Formatear los documentos para mostrar
         docs_info = []
@@ -284,20 +284,20 @@ def query_rag(question):
 |---|---|
 | `initialize_rag_system()` | Obtiene la cadena y el retriever (cacheados). |
 | `rag_chain.invoke(question)` | Respuesta de texto. |
-| `retriever.get_relevant_documents(question)` | Segunda recuperación, **otra vez con MultiQuery** (otra llamada al modelo de consultas), solo para mostrar fragmentos. |
+| `retriever.invoke(question)` | Segunda recuperación, **otra vez con MultiQuery** (otra llamada al modelo de consultas), solo para mostrar fragmentos. |
 | `docs[:SEARCH_K]` | Muestra como máximo 2. |
 | `doc_info` | Diccionario con las claves que `app.py` espera: `fragmento`, `contenido` (recortado a 1000 caracteres + `...`), `fuente` (nombre de archivo) y `pagina` (`'No especificada'` si falta). |
 | `except Exception` | Cualquier error se devuelve **como texto de respuesta** con lista de fragmentos vacía. |
 
 **Comprobado** ✅ (versión con `.invoke`, modelos simulados): `query_rag("¿renta?")` devolvió `('Respuesta', [{'fragmento': 1, 'contenido': ..., 'fuente': 'contratoC.pdf', 'pagina': 5}])`: coincide con lo que consume `app.py`.
 
-🔀 **`get_relevant_documents` ya no existe.** Estaba marcado como obsoleto desde `langchain-core` 0.1.46 con eliminación en 1.0 (✅ visible en `langchain-core` 0.3.80) y en `langchain-core` 1.8.4 ✅ no existe. Con el archivo tal cual (más las tres importaciones corregidas) la cadena responde, pero `query_rag` termina en el `except` y devuelve:
+🔀 **Cambio respecto al original: `get_relevant_documents` ya no existe.** El original lo llamaba; estaba marcado como obsoleto desde `langchain-core` 0.1.46 con eliminación en 1.0 (✅ visible en `langchain-core` 0.3.80) y en `langchain-core` 1.8.4 ✅ no existe. Con el original (más las tres importaciones corregidas) la cadena respondía, pero `query_rag` terminaba en el `except` y devolvía:
 
 ```text
 Error al procesar la cosulta: 'MultiQueryRetriever' object has no attribute 'get_relevant_documents'
 ```
 
-con la lista de fragmentos vacía: **el usuario vería ese texto como "respuesta"** (y el modelo se habría llamado ya, con su coste). La forma actual es `retriever.invoke(question)` ✅ (probado).
+con la lista de fragmentos vacía: **el usuario veía ese texto como "respuesta"** (y el modelo se había llamado ya, con su coste). Ahora el código usa `retriever.invoke(question)` ✅: con modelos simulados y una base de prueba, `query_rag` devuelve respuesta y 2 fragmentos con las claves `fragmento`, `contenido`, `fuente` y `pagina`.
 
 ---
 
@@ -327,7 +327,7 @@ Este archivo no incluye ejercicios propuestos.
 
 ### ¿Cómo hago que funcione con LangChain 1.x?
 
-Cambia (✅ probado) tres importaciones y una llamada:
+**Ya está aplicado** en `rag_system.py` y en sus versiones 1.3. Si trabajas con una copia del original, cambia (✅ probado) tres importaciones y una llamada:
 
 ```python
 from langchain_core.prompts import PromptTemplate
@@ -335,7 +335,7 @@ from langchain_classic.retrievers.multi_query import MultiQueryRetriever
 from langchain_classic.retrievers import EnsembleRetriever
 ```
 
-y `retriever.get_relevant_documents(question)` por `retriever.invoke(question)`. Además, la documentación oficial usa `from langchain_chroma import Chroma` (`pip install -U langchain-chroma`).
+y `retriever.get_relevant_documents(question)` por `retriever.invoke(question)`. `Chroma` debe importarse de `langchain_chroma` (`pip install -U langchain-classic langchain-chroma`).
 
 ### ¿Cómo muestro los fragmentos realmente usados?
 
@@ -349,9 +349,11 @@ Hoy se hace una vez dentro de la cadena y otra en `query_rag`. Una opción serí
 
 | Síntoma | Causa probable | Solución |
 |---|---|---|
-| `ModuleNotFoundError: langchain.prompts` / `langchain.retrievers` | LangChain 1.x ✅ | Importaciones de `langchain_core` / `langchain_classic` |
-| La respuesta es `Error al procesar la cosulta: ... get_relevant_documents` | Método eliminado ✅ | `retriever.invoke(...)` |
-| `LangChainDeprecationWarning` por `Chroma` | Clase deprecada ✅ | `langchain_chroma` |
+| `ModuleNotFoundError: langchain.prompts` / `langchain.retrievers` (forma del original) | LangChain 1.x ✅ | Importaciones de `langchain_core` / `langchain_classic` (ya aplicadas) |
+| `ModuleNotFoundError: langchain_classic` | Falta el paquete | `pip install -U langchain-classic` |
+| La respuesta es `Error al procesar la cosulta: ... get_relevant_documents` (forma del original) | Método eliminado ✅ | `retriever.invoke(...)` (ya aplicado) |
+| `LangChainDeprecationWarning` por `Chroma` (solo si se vuelve a importar de `langchain_community`) | Clase deprecada ✅ | Usar `langchain_chroma` |
+| `ModuleNotFoundError: langchain_chroma` | Falta el paquete | `pip install -U langchain-chroma` |
 | El umbral no tiene efecto | Parámetro inexistente en `EnsembleRetriever` ✅ | No confiar en él |
 | Fragmentos mostrados distintos a los usados | `query_rag` usa otro retriever ✅ | Ver arriba |
 
@@ -380,7 +382,7 @@ Hoy se hace una vez dentro de la cadena y otra en `query_rag`. Una opción serí
 
 | Componente | Paquete (1.x) | Notas |
 |---|---|---|
-| `Chroma` | `langchain_chroma` (oficial) / `langchain_community` (deprecado) | |
+| `Chroma` | `langchain_chroma` (usado ahora) / `langchain_community` (deprecado, forma del original) | |
 | `PromptTemplate` | `langchain_core.prompts` | |
 | `MultiQueryRetriever` | `langchain_classic.retrievers.multi_query` | `from_llm(retriever, llm, prompt, parser_key, include_original)` |
 | `EnsembleRetriever` | `langchain_classic.retrievers` | `retrievers`, `weights`, `c`, `id_key` |
@@ -410,7 +412,7 @@ Para que `app.py` nunca reciba una excepción. A cambio, los errores se muestran
 
 ### Observaciones sobre el archivo
 
-- Escrito para LangChain 0.x; con 1.x fallan tres importaciones y `get_relevant_documents`. 🔀 ✅
+- El original estaba escrito para LangChain 0.x; con 1.x fallaban tres importaciones y `get_relevant_documents`. 🔀 ✅ Corregido en esta versión.
 - `similarity_threshold` se ignora. 🔀 ✅
 - Los fragmentos mostrados proceden de un retriever distinto al usado para responder, con una segunda llamada MultiQuery.
 - `Maximal Margin`, `vectorestore`, `cosulta`, "que combinar": erratas en comentarios o nombres.
@@ -426,8 +428,8 @@ Para que `app.py` nunca reciba una excepción. A cambio, los errores se muestran
 3. ¿Qué dos modelos se usan y para qué?
 4. ¿Qué pasa con `similarity_threshold`?
 5. ¿Qué retriever se usa para mostrar fragmentos y cuál para responder (con búsqueda híbrida)?
-6. ¿Qué ocurre si `retriever.get_relevant_documents` no existe?
-7. ¿Qué tres importaciones fallan en LangChain 1.x?
+6. ¿Qué ocurría con el original en LangChain 1.x porque `retriever.get_relevant_documents` no existe?
+7. ¿Qué tres importaciones del original fallan en LangChain 1.x?
 8. ¿Qué claves tiene cada elemento de `docs_info`?
 9. ¿Por qué la respuesta de error aparece como respuesta del asistente?
 
